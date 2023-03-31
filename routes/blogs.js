@@ -47,6 +47,29 @@ router.get('/all', async function(req, res) {
       
   });
 
+//UPDATE one blog
+router.post("/update-one/:blogTitle", async (req, res) => {
+  const blogToUpdate = { 
+    title: req.params.blogTitle,
+    text: req.params.blogText
+  };
+
+  const updates = {
+    title: req.body.title,
+    text: req.body.text
+  };
+
+  await db()
+  .collection("sample_blogs")
+  .updateOne(blogToUpdate, updates);
+
+  res.json({
+    success: true,
+    blog: blogTitle,
+  });
+});
+
+
 //GET one blog from id search
   router.get('/get-one/:id', async function(req, res) {
     const blogs = await db()
@@ -78,9 +101,7 @@ router.get('/all', async function(req, res) {
       });
   });
 
-//  STRETCH GOALS :
-//get-multi/ (GET): get multiple sorted results
-//HINT: use find().sort() 
+
 router.get('/get-multi', async function(req, res, next) {
   // console.log(req.params.opt1)
   const blogs = await db()
@@ -97,15 +118,56 @@ router.get('/get-multi', async function(req, res, next) {
     });
 })
 
+//Delete blog by title
+router.delete("/single/:blogTitle", async (req, res) => {
+  let titleToDelete = { title: req.params.blogTitle };
 
+  await db()
+    .collection("sample_blogs")
+    .deleteOne(titleToDelete, (err, _result) => {
+      if (err) {
+        res
+          .status(400)
+          .send(`Error deleting blog${titleToDelete.id}!`);
+      } else {
+        console.log("Blog deleted successfully");
+        res.status(200).send(`${titleToDelete.id} deleted successfully`);
+      }
+    });
 
-//delete-multi/ (GET): get multiple results
-//HINT: use deleteMany()
+  res.json({
+    success: true,
+  });
+});
 
 router.get('/get-one/:title', async function(req, res) {
   const blogs = await db()
   .collection('sample_blogs')
   .findOne({
+      title:req.params.titleToFind
+  })
+    res.json({
+      success:true,
+      blogs: blogs
+    });
+})
+
+router.put('/update-one', async function(req, res) {
+  const blogs = await db()
+  .collection('sample_blogs')
+  .updateOne({
+      title:req.params.titleToFind
+  })
+    res.json({
+      success:true,
+      blogs: blogs
+    });
+})
+
+router.delete('/delete-one', async function(req, res) {
+  const blogs = await db()
+  .collection('sample_blogs')
+  .deleteOne({
       title:req.params.titleToFind
   })
     res.json({
